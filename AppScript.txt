@@ -1,0 +1,131 @@
+// Constante que armazena o ID da sua planilha.
+const SS_ID = '1p1Xpgl8imj4ps4BxlhguYNIF8ByJGy8XyZXkpRi77Gw'; // Substitua pelo ID da sua planilha
+
+// --- SUBSTITUA SUA FUNÇÃO doGet ANTIGA POR ESTA ---
+
+function doGet(e) {
+  const action = e.parameter.action;
+  
+  if (action == 'getAlocacoes') {
+    const alocacoes = getAlocacoes();
+    return ContentService.createTextOutput(JSON.stringify(alocacoes)).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // Novas rotas para nossas novas funções
+  if (action == 'getRecursos') {
+    const recursos = getRecursos();
+    return ContentService.createTextOutput(JSON.stringify(recursos)).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  if (action == 'getEscopos') {
+    const escopos = getEscopos();
+    return ContentService.createTextOutput(JSON.stringify(escopos)).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Ação não encontrada." })).setMimeType(ContentService.MimeType.JSON);
+}
+
+
+// Função específica para buscar os dados da aba "Alocacoes"
+function getAlocacoes() {
+  
+  // Abre a planilha e seleciona a aba "Alocacoes".
+  const aba = SpreadsheetApp.openById(SS_ID).getSheetByName('Alocacoes');
+  
+  // Pega todos os dados da aba, começando da segunda linha (para ignorar o cabeçalho).
+  const dados = aba.getRange(2, 1, aba.getLastRow() - 1, aba.getLastColumn()).getValues();
+  
+  // Pega os nomes das colunas do cabeçalho.
+  const cabecalhos = aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0];
+  
+  // Converte a matriz de dados em uma lista de objetos, mais fácil de trabalhar.
+  const resultado = dados.map(linha => {
+    let objeto = {};
+    cabecalhos.forEach((cabecalho, i) => {
+      objeto[cabecalho] = linha[i];
+    });
+    return objeto;
+  });
+  
+  return resultado;
+}
+
+// --- ADICIONE ESTAS DUAS NOVAS FUNÇÕES AO FINAL DO SEU SCRIPT ---
+
+// Função específica para buscar os dados da aba "Recursos"
+function getRecursos() {
+  const aba = SpreadsheetApp.openById(SS_ID).getSheetByName('Recursos');
+  const dados = aba.getRange(2, 1, aba.getLastRow() - 1, aba.getLastColumn()).getValues();
+  const cabecalhos = aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0];
+  
+  const resultado = dados.map(linha => {
+    let objeto = {};
+    cabecalhos.forEach((cabecalho, i) => {
+      objeto[cabecalho] = linha[i];
+    });
+    return objeto;
+  });
+  
+  return resultado;
+}
+
+// Função específica para buscar os dados da aba "Escopos"
+function getEscopos() {
+  const aba = SpreadsheetApp.openById(SS_ID).getSheetByName('Escopos');
+  const dados = aba.getRange(2, 1, aba.getLastRow() - 1, aba.getLastColumn()).getValues();
+  const cabecalhos = aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0];
+  
+  const resultado = dados.map(linha => {
+    let objeto = {};
+    cabecalhos.forEach((cabecalho, i) => {
+      objeto[cabecalho] = linha[i];
+    });
+    return objeto;
+  });
+  
+  return resultado;
+}
+
+// --- COLE ESTE BLOCO DE CÓDIGO AO FINAL DO SEU SCRIPT ---
+
+// --- SUBSTITUA SUA FUNÇÃO doPost ANTIGA POR ESTA ---
+
+function doPost(e) {
+  try {
+    const dados = JSON.parse(e.postData.contents);
+    
+    // VERIFICAMOS A "AÇÃO" ENVIADA PELO SITE
+    if (dados.action === 'delete') {
+      // Se a ação for 'delete', chama a função de deletar.
+      const resultado = deletarAlocacao(dados.ID_Alocacao);
+      return ContentService.createTextOutput(JSON.stringify(resultado)).setMimeType(ContentService.MimeType.JSON);
+    
+    } else {
+      // Se não houver ação específica, o padrão é salvar.
+      const resultado = salvarNovaAlocacao(dados);
+      return ContentService.createTextOutput(JSON.stringify(resultado)).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.message })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Função que faz o trabalho sujo de adicionar a linha na planilha.
+function salvarNovaAlocacao(dados) {
+  const aba = SpreadsheetApp.openById(SS_ID).getSheetByName('Alocacoes');
+  
+  // Pega os cabeçalhos para garantir que os dados sejam inseridos na ordem correta.
+  const cabecalhos = aba.getRange(1, 1, 1, aba.getLastColumn()).getValues()[0];
+  
+  // Cria uma nova linha (array) na ordem exata das colunas da planilha.
+  const novaLinha = cabecalhos.map(cabecalho => dados[cabecalho] || ""); // Usa o valor dos dados ou uma string vazia.
+  
+  // Adiciona a nova linha no final da planilha.
+  aba.appendRow(novaLinha);
+  
+  // Retorna um objeto de sucesso.
+  return { status: "success", message: "Alocação salva com sucesso!", data: dados };
+}
+
+

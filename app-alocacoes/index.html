@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Alocações</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body>
+    
+
+    <header>
+        <h1>Painel de Alocações da Equipe</h1>
+    </header>
+
+    <div class="actions-bar">
+        <button id="add-button">Adicionar Alocação</button>
+    </div>
+    <main>
+        <div class="tabela-container">
+            <div id="loader" class="loader-overlay">
+                <div class="spinner"></div>
+            </div>
+
+             <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Recurso</th>
+                        <th>Escopo</th>
+                        <th>Fase</th>
+                        <th>Tipo de Alocação</th>
+                        <th>Orientação</th>
+                        <th>Ações</th> </tr>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Alocação</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <form id="add-form">
+    <div class="form-group">
+        <label for="Data">Data</label>
+        <input type="date" id="Data" required>
+    </div>
+    <div class="form-group">
+        <label for="ID_Recurso">Recurso</label>
+        <select id="ID_Recurso" required></select>
+    </div>
+    <div class="form-group">
+        <label for="ID_Escopo">Escopo</label>
+        <select id="ID_Escopo" required></select>
+    </div>
+
+    <div class="form-group">
+        <label for="Fase">Fase</label>
+        <select id="Fase" required></select>
+    </div>
+    <div class="form-group">
+        <label for="TipoAlocacao">Tipo de Alocação</label>
+        <select id="TipoAlocacao" required></select>
+    </div>
+    <div class="form-group">
+        <label for="SubTipoAlocacao">Sub-Tipo de Alocação</label>
+        <select id="SubTipoAlocacao" required></select>
+    </div>
+    <div class="form-group">
+        <label for="Orientacao">Orientação</label>
+        <select id="Orientacao" required></select>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn-save">Salvar</button>
+    </div>
+</form>
+        </div>
+    </div>
+
+    <script>
+    // --- CÓDIGO JAVASCRIPT FINAL E COMPLETO ---
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7_6WWtag877ITvLJ2j50a19W48VyEqMmV_RaiPTv5dudt-v9VvUn2sJY9h1LYfu1v/exec'; // NÃO SE ESQUEÇA DE COLOCAR SUA URL AQUI
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const corpoTabela = document.getElementById('corpo-tabela');
+        const modal = document.getElementById('add-modal');
+        const addButton = document.getElementById('add-button');
+        const closeButton = document.querySelector('.close-button');
+        const addForm = document.getElementById('add-form');
+
+        const abrirModal  = () => modal.style.display = 'flex';
+        const fecharModal = () => modal.style.display = 'none';
+
+        // --- SUBSTITUA APENAS A FUNÇÃO carregarDados PELA VERSÃO ABAIXO ---
+
+async function carregarDados() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'flex'; // MOSTRA o spinner
+    
+    // A linha abaixo foi removida, pois o spinner já é o feedback
+    // corpoTabela.innerHTML = '<tr><td colspan="7">Carregando dados...</td></tr>';
+
+    try {
+        const [resAlocacoes, resRecursos, resEscopos] = await Promise.all([
+            fetch(API_URL + '?action=getAlocacoes'),
+            fetch(API_URL + '?action=getRecursos'),
+            fetch(API_URL + '?action=getEscopos')
+        ]);
+
+        const [alocacoes, recursos, escopos] = await Promise.all([
+            resAlocacoes.json(), resRecursos.json(), resEscopos.json()
+        ]);
+        
+        renderizarTabela(alocacoes, recursos, escopos);
+        popularDropdowns(recursos, escopos, alocacoes);
+
+    } catch (error) {
+        corpoTabela.innerHTML = `<tr><td colspan="7">Erro ao carregar os dados: ${error}</td></tr>`;
+    } finally {
+        // O bloco 'finally' SEMPRE executa, tanto em sucesso quanto em erro.
+        // É o lugar perfeito para garantir que o spinner seja escondido.
+        loader.style.display = 'none'; // ESCONDE o spinner
+    }
+}
+
+        function renderizarTabela(alocacoes, recursos, escopos) {
+            const recursosMap = new Map(recursos.map(r => [r.ID_Recurso, r.NomeRecurso]));
+            const escoposMap = new Map(escopos.map(e => [e.ID_Escopo, e.NomeEscopo]));
+            corpoTabela.innerHTML = '';
+            alocacoes.forEach(alocacao => {
+                if (!alocacao || !alocacao.Data) return;
+                const dataFormatada = new Date(alocacao.Data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                corpoTabela.innerHTML += `
+                    <tr>
+                        <td>${dataFormatada}</td>
+                        <td>${recursosMap.get(alocacao.ID_Recurso) || ''}</td>
+                        <td>${escoposMap.get(alocacao.ID_Escopo) || ''}</td>
+                        <td>${alocacao.Fase || ''}</td>
+                        <td>${alocacao.TipoAlocacao || ''}</td>
+                        <td>${alocacao.Orientacao || ''}</td>
+                        <td>
+                            <button class="delete-btn" data-id="${alocacao.ID_Alocacao}">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        function popularDropdowns(recursos, escopos, alocacoes) {
+            const selectRecurso = document.getElementById('ID_Recurso');
+            const selectEscopo = document.getElementById('ID_Escopo');
+            const selectFase = document.getElementById('Fase');
+            const selectTipoAlocacao = document.getElementById('TipoAlocacao');
+            const selectSubTipo = document.getElementById('SubTipoAlocacao');
+            const selectOrientacao = document.getElementById('Orientacao');
+            const recursosUsados = new Set(alocacoes.map(a => a.ID_Recurso));
+            const recursosDisponiveis = recursos.filter(r => !recursosUsados.has(r.ID_Recurso));
+            const fases = ["Implantação", "Ongoing", "Piloto", "Produto"];
+            const tiposAlocacao = ["Cobertura", "Lista", "Revisão", "Desagrupamento", "Homologação Prosa"];
+            const subTipos = ["Excel", "Sistema"];
+            const orientacoes = ["Homologação Normal", "Desagrupamento", "Melhoria de AP", "Revisão"];
+            const preencherSelect = (el, opts, ph) => { el.innerHTML = `<option value="">${ph}</option>`; opts.forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`); };
+            selectRecurso.innerHTML = '<option value="">Selecione um Recurso</option>';
+            recursosDisponiveis.forEach(r => selectRecurso.innerHTML += `<option value="${r.ID_Recurso}">${r.NomeRecurso}</option>`);
+            selectEscopo.innerHTML = '<option value="">Selecione um Escopo</option>';
+            escopos.forEach(e => selectEscopo.innerHTML += `<option value="${e.ID_Escopo}">${e.NomeEscopo}</option>`);
+            preencherSelect(selectFase, fases, "Selecione uma Fase");
+            preencherSelect(selectTipoAlocacao, tiposAlocacao, "Selecione um Tipo");
+            preencherSelect(selectSubTipo, subTipos, "Selecione um Sub-Tipo");
+            preencherSelect(selectOrientacao, orientacoes, "Selecione uma Orientação");
+        }
+
+        async function deletarAlocacaoPeloId(id) {
+            if (!confirm('Tem certeza que deseja deletar esta alocação?')) {
+                return;
+            }
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'delete', ID_Alocacao: id })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    carregarDados();
+                } else {
+                    alert('Erro ao deletar: ' + result.message);
+                }
+            } catch (error) {
+                alert('Erro de conexão ao deletar: ' + error);
+            }
+        }
+
+        addButton.addEventListener('click', abrirModal);
+        closeButton.addEventListener('click', fecharModal);
+        window.addEventListener('click', (e) => { if (e.target == modal) fecharModal(); });
+        
+        corpoTabela.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('delete-btn')) {
+                const id = e.target.getAttribute('data-id');
+                deletarAlocacaoPeloId(id);
+            }
+        });
+
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                Data: document.getElementById('Data').value, ID_Recurso: document.getElementById('ID_Recurso').value,
+                ID_Escopo: document.getElementById('ID_Escopo').value, Fase: document.getElementById('Fase').value,
+                TipoAlocacao: document.getElementById('TipoAlocacao').value, SubTipoAlocacao: document.getElementById('SubTipoAlocacao').value,
+                Orientacao: document.getElementById('Orientacao').value
+            };
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    fecharModal();
+                    addForm.reset();
+                    carregarDados();
+                } else { alert('Erro ao salvar: ' + result.message); }
+            } catch (error) { alert('Erro de conexão ao salvar: ' + error); }
+        });
+        
+        carregarDados();
+    });
+</script>
+
+
+</body>
+</html>

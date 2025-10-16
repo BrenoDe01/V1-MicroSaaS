@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Alocações</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body>
+    
+
+    <header>
+        <h1>Painel de Alocações da Equipe</h1>
+    </header>
+
+    <div class="actions-bar">
+        <button id="add-button">Adicionar Alocação</button>
+    </div>
+    <main>
+        <div class="tabela-container">
+             <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Recurso</th>
+                        <th>Escopo</th>
+                        <th>Fase</th>
+                        <th>Tipo de Alocação</th>
+                        <th>Orientação</th>
+                        <th>Ações</th> </tr>
+                    </tr>
+                </thead>
+                <tbody id="corpo-tabela">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Alocação</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <form id="add-form">
+    <div class="form-group">
+        <label for="Data">Data</label>
+        <input type="date" id="Data" required>
+    </div>
+    <div class="form-group">
+        <label for="ID_Recurso">Recurso</label>
+        <select id="ID_Recurso" required></select>
+    </div>
+    <div class="form-group">
+        <label for="ID_Escopo">Escopo</label>
+        <select id="ID_Escopo" required></select>
+    </div>
+
+    <div class="form-group">
+        <label for="Fase">Fase</label>
+        <select id="Fase" required></select>
+    </div>
+    <div class="form-group">
+        <label for="TipoAlocacao">Tipo de Alocação</label>
+        <select id="TipoAlocacao" required></select>
+    </div>
+    <div class="form-group">
+        <label for="SubTipoAlocacao">Sub-Tipo de Alocação</label>
+        <select id="SubTipoAlocacao" required></select>
+    </div>
+    <div class="form-group">
+        <label for="Orientacao">Orientação</label>
+        <select id="Orientacao" required></select>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn-save">Salvar</button>
+    </div>
+</form>
+        </div>
+    </div>
+
+    <script>
+    // --- CÓDIGO JAVASCRIPT ATUALIZADO COM NOTIFICAÇÕES ---
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7_6WWtag877ITvLJ2j50a19W48VyEqMmV_RaiPTv5dudt-v9VvUn2sJY9h1LYfu1v/exec';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... (as constantes dos elementos do DOM continuam as mesmas) ...
+        const corpoTabela = document.getElementById('corpo-tabela');
+        const modal = document.getElementById('add-modal');
+        const addButton = document.getElementById('add-button');
+        const closeButton = document.querySelector('.close-button');
+        const addForm = document.getElementById('add-form');
+
+        // MUDANÇA AQUI: Função para mostrar notificações
+        const showToast = (message, type = 'info') => {
+            const colors = {
+                success: 'linear-gradient(to right, #00b09b, #96c93d)',
+                error: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+                info: 'linear-gradient(to right, #4a6cf7, #63b3ed)'
+            };
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: { background: colors[type] || colors.info },
+            }).showToast();
+        };
+        
+        // ... (as funções de abrir/fechar modal e carregarDados continuam as mesmas) ...
+        const abrirModal = () => modal.style.display = 'flex';
+        const fecharModal = () => modal.style.display = 'none';
+
+        async function carregarDados() { /* ... esta função não muda ... */ }
+        function renderizarTabela(alocacoes, recursos, escopos) { /* ... esta função não muda ... */ }
+        function popularDropdowns(recursos, escopos, alocacoes) { /* ... esta função não muda ... */ }
+        
+        // --- FUNÇÃO DE DELETAR ATUALIZADA ---
+        async function deletarAlocacaoPeloId(id) {
+            // Mantemos o confirm() pois é uma ação destrutiva e precisa de bloqueio.
+            if (!confirm('Tem certeza que deseja deletar esta alocação?')) {
+                return;
+            }
+            try {
+                showToast('Deletando alocação...', 'info'); // MUDANÇA AQUI
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'delete', ID_Alocacao: id })
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast('Alocação deletada com sucesso!', 'success'); // MUDANÇA AQUI
+                    carregarDados();
+                } else {
+                    showToast('Erro ao deletar: ' + result.message, 'error'); // MUDANÇA AQUI
+                }
+            } catch (error) {
+                showToast('Erro de conexão ao deletar.', 'error'); // MUDANÇA AQUI
+            }
+        }
+        
+        // ... (os event listeners de abrir/fechar/clicar na tabela continuam os mesmos) ...
+        addButton.addEventListener('click', abrirModal);
+        closeButton.addEventListener('click', fecharModal);
+        window.addEventListener('click', (e) => { if (e.target == modal) fecharModal(); });
+        corpoTabela.addEventListener('click', (e) => {
+            if (e.target && e.target.classList.contains('delete-btn')) {
+                const id = e.target.getAttribute('data-id');
+                deletarAlocacaoPeloId(id);
+            }
+        });
+
+        // --- FUNÇÃO DE SALVAR ATUALIZADA ---
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                Data: document.getElementById('Data').value, ID_Recurso: document.getElementById('ID_Recurso').value,
+                ID_Escopo: document.getElementById('ID_Escopo').value, Fase: document.getElementById('Fase').value,
+                TipoAlocacao: document.getElementById('TipoAlocacao').value, SubTipoAlocacao: document.getElementById('SubTipoAlocacao').value,
+                Orientacao: document.getElementById('Orientacao').value
+            };
+            try {
+                showToast('Salvando nova alocação...', 'info'); // MUDANÇA AQUI
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showToast('Alocação salva com sucesso!', 'success'); // MUDANÇA AQUI
+                    fecharModal();
+                    addForm.reset();
+                    carregarDados();
+                } else { 
+                    showToast('Erro ao salvar: ' + result.message, 'error'); // MUDANÇA AQUI
+                }
+            } catch (error) { 
+                showToast('Erro de conexão ao salvar.', 'error'); // MUDANÇA AQUI
+            }
+        });
+        
+        carregarDados(); // Inicia tudo
+    });
+</script>
+
+
+</body>
+</html>
