@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Alocações</title>
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 <body>
-    
 
     <header>
         <h1>Painel de Alocações da Equipe</h1>
@@ -19,13 +17,13 @@
     <div class="actions-bar">
         <button id="add-button">Adicionar Alocação</button>
     </div>
+
     <main>
         <div class="tabela-container">
             <div id="loader" class="loader-overlay">
                 <div class="spinner"></div>
             </div>
-
-             <table>
+            <table>
                 <thead>
                     <tr>
                         <th>Data</th>
@@ -34,7 +32,7 @@
                         <th>Fase</th>
                         <th>Tipo de Alocação</th>
                         <th>Orientação</th>
-                        <th>Ações</th> </tr>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="corpo-tabela">
@@ -50,235 +48,274 @@
                 <span class="close-button">&times;</span>
             </div>
             <form id="add-form">
-            <input type="hidden" id="edit-id"> 
-    <div class="form-group">
-        <label for="Data">Data</label>
-        <input type="date" id="Data" required>
-    </div>
-    <div class="form-group">
-        <label for="ID_Recurso">Recurso</label>
-        <select id="ID_Recurso" required></select>
-    </div>
-    <div class="form-group">
-        <label for="ID_Escopo">Escopo</label>
-        <select id="ID_Escopo" required></select>
-    </div>
+                <input type="hidden" id="edit-id">
 
-    <div class="form-group">
-        <label for="Fase">Fase</label>
-        <select id="Fase" required></select>
-    </div>
-    <div class="form-group">
-        <label for="TipoAlocacao">Tipo de Alocação</label>
-        <select id="TipoAlocacao" required></select>
-    </div>
-    <div class="form-group">
-        <label for="SubTipoAlocacao">Sub-Tipo de Alocação</label>
-        <select id="SubTipoAlocacao" required></select>
-    </div>
-    <div class="form-group">
-        <label for="Orientacao">Orientação</label>
-        <select id="Orientacao" required></select>
-    </div>
-    <div class="modal-footer">
-        <button type="submit" class="btn-save">Salvar</button>
-    </div>
-</form>
+                <div class="form-group">
+                    <label for="Data">Data</label>
+                    <input type="date" id="Data" required>
+                </div>
+                <div class="form-group">
+                    <label for="ID_Recurso">Recurso</label>
+                    <select id="ID_Recurso" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="ID_Escopo">Escopo</label>
+                    <select id="ID_Escopo" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="Fase">Fase</label>
+                    <select id="Fase" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="TipoAlocacao">Tipo de Alocação</label>
+                    <select id="TipoAlocacao" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="SubTipoAlocacao">Sub-Tipo de Alocação</label>
+                    <select id="SubTipoAlocacao" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="Orientacao">Orientação</label>
+                    <select id="Orientacao" required></select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    
-<script>
-    // --- CÓDIGO JAVASCRIPT FINAL COM EDIÇÃO ---
-    const API_URL = 'https://script.google.com/macros/s/AKfycbz7_6WWtag877ITvLJ2j50a19W48VyEqMmV_RaiPTv5dudt-v9VvUn2sJY9h1LYfu1v/exec'; // NÃO SE ESQUEÇA DA SUA URL
+    <script>
+        // --- CÓDIGO JAVASCRIPT FINAL COM EDIÇÃO ---
+        const API_URL = 'COLE_A_SUA_URL_AQUI'; // <-- IMPORTANTE: COLOQUE SUA URL AQUI
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Elementos do DOM (incluindo o novo campo oculto e título do modal)
-        const corpoTabela = document.getElementById('corpo-tabela');
-        const modal = document.getElementById('add-modal');
-        const modalTitle = modal.querySelector('.modal-header h2'); // Pega o título do modal
-        const addButton = document.getElementById('add-button');
-        const closeButton = modal.querySelector('.close-button');
-        const addForm = document.getElementById('add-form');
-        const editIdInput = document.getElementById('edit-id'); // Pega o campo oculto
-
-        // Estado global para guardar os dados carregados
-        let alocacoesCache = [];
-        let recursosCache = [];
-        let escoposCache = [];
-
-        // Funções do Modal
-        const abrirModal = () => modal.style.display = 'flex';
-        const fecharModal = () => {
-            modal.style.display = 'none';
-            addForm.reset(); // Limpa o formulário ao fechar
-            editIdInput.value = ''; // Limpa o ID de edição
-            modalTitle.textContent = 'Nova Alocação'; // Reseta o título
-        }
-
-        // Função para mostrar notificações
-        const showToast = (message, type = 'info') => { /* ... (esta função continua a mesma) ... */ };
-
-        // Função principal para carregar dados
-        async function carregarDados() {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos do DOM
+            const corpoTabela = document.getElementById('corpo-tabela');
+            const modal = document.getElementById('add-modal');
+            const modalTitle = modal.querySelector('.modal-header h2');
+            const addButton = document.getElementById('add-button');
+            const closeButton = modal.querySelector('.close-button');
+            const addForm = document.getElementById('add-form');
+            const editIdInput = document.getElementById('edit-id');
             const loader = document.getElementById('loader');
-            if (loader) loader.style.display = 'flex';
-            try {
-                const [resAlocacoes, resRecursos, resEscopos] = await Promise.all([
-                    fetch(API_URL + '?action=getAlocacoes'),
-                    fetch(API_URL + '?action=getRecursos'),
-                    fetch(API_URL + '?action=getEscopos')
-                ]);
-                alocacoesCache = await resAlocacoes.json();
-                recursosCache = await resRecursos.json();
-                escoposCache = await resEscopos.json();
-                renderizarTabela(alocacoesCache, recursosCache, escoposCache);
-                popularDropdowns(recursosCache, escoposCache, alocacoesCache); // Popula dropdowns uma vez
-            } catch (error) {
-                corpoTabela.innerHTML = `<tr><td colspan="7">Erro ao carregar os dados: ${error}</td></tr>`;
-                showToast('Erro ao carregar dados.', 'error');
-            } finally {
-                if (loader) loader.style.display = 'none';
-            }
-        }
 
-        // Função para renderizar a tabela
-        function renderizarTabela(alocacoes, recursos, escopos) { /* ... (esta função continua a mesma, com os dois botões) ... */ }
-        
-        // Função para popular dropdowns
-        function popularDropdowns(recursos, escopos, alocacoes = []) {
-             // Modificada para aceitar alocações opcionais (usado ao abrir o modal de adicionar)
-            const selectRecurso = document.getElementById('ID_Recurso');
-            const selectEscopo = document.getElementById('ID_Escopo');
-            // ... (restante dos selects e lógicas fixas) ...
+            // Estado global para guardar os dados carregados
+            let alocacoesCache = [];
+            let recursosCache = [];
+            let escoposCache = [];
 
-            // Filtra recursos disponíveis APENAS se estivermos adicionando
-            const idEdicao = editIdInput.value;
-            const recursosUsados = new Set(alocacoes.filter(a => a.ID_Alocacao != idEdicao).map(a => a.ID_Recurso)); // Exclui o ID atual da verificação
-            const recursosParaDropdown = idEdicao ? recursos : recursos.filter(r => !recursosUsados.has(r.ID_Recurso));
-
-            // Popula Recursos (com ou sem filtro)
-            selectRecurso.innerHTML = '<option value="">Selecione um Recurso</option>';
-            recursosParaDropdown.forEach(r => selectRecurso.innerHTML += `<option value="${r.ID_Recurso}">${r.NomeRecurso}</option>`);
-
-            // Popula Escopos (sem filtro)
-            selectEscopo.innerHTML = '<option value="">Selecione um Escopo</option>';
-            escopos.forEach(e => selectEscopo.innerHTML += `<option value="${e.ID_Escopo}">${e.NomeEscopo}</option>`);
-            
-            // ... (restante do preenchimento dos selects fixos) ...
-        }
-
-        // --- NOVA FUNÇÃO ---
-        // Função para abrir o modal preenchido para edição
-        function abrirModalParaEditar(id) {
-            // Encontra a alocação no nosso cache de dados
-            const alocacaoParaEditar = alocacoesCache.find(a => a.ID_Alocacao == id);
-            if (!alocacaoParaEditar) {
-                showToast('Erro: Alocação não encontrada.', 'error');
-                return;
+            // Funções do Modal
+            const abrirModal = () => modal.style.display = 'flex';
+            const fecharModal = () => {
+                modal.style.display = 'none';
+                addForm.reset();
+                editIdInput.value = '';
+                modalTitle.textContent = 'Nova Alocação';
             }
 
-            // Preenche o formulário
-            document.getElementById('edit-id').value = alocacaoParaEditar.ID_Alocacao;
-            // Formata a data corretamente para o input type="date" (YYYY-MM-DD)
-            const dataObjeto = new Date(alocacaoParaEditar.Data);
-            const ano = dataObjeto.getUTCFullYear();
-            const mes = String(dataObjeto.getUTCMonth() + 1).padStart(2, '0'); // Meses são 0-indexed
-            const dia = String(dataObjeto.getUTCDate()).padStart(2, '0');
-            document.getElementById('Data').value = `${ano}-${mes}-${dia}`;
-            
-            document.getElementById('ID_Recurso').value = alocacaoParaEditar.ID_Recurso;
-            document.getElementById('ID_Escopo').value = alocacaoParaEditar.ID_Escopo;
-            document.getElementById('Fase').value = alocacaoParaEditar.Fase;
-            document.getElementById('TipoAlocacao').value = alocacaoParaEditar.TipoAlocacao;
-            document.getElementById('SubTipoAlocacao').value = alocacaoParaEditar.SubTipoAlocacao;
-            document.getElementById('Orientacao').value = alocacaoParaEditar.Orientacao;
+            // Função para mostrar notificações
+            const showToast = (message, type = 'info') => {
+                 const colors = { success: 'linear-gradient(to right, #00b09b, #96c93d)', error: 'linear-gradient(to right, #ff5f6d, #ffc371)', info: 'linear-gradient(to right, #4a6cf7, #63b3ed)' };
+                 Toastify({ text: message, duration: 3000, close: true, gravity: "top", position: "right", stopOnFocus: true, style: { background: colors[type] || colors.info }, }).showToast();
+             };
 
-            // Muda o título do modal
-            modalTitle.textContent = 'Editar Alocação';
-            
-            // Popula os dropdowns SEM filtrar o recurso atual
-             popularDropdowns(recursosCache, escoposCache, alocacoesCache);
-             // Re-seleciona o recurso correto após repopular
-             document.getElementById('ID_Recurso').value = alocacaoParaEditar.ID_Recurso;
-
-
-            abrirModal();
-        }
-        
-        // Função para deletar
-        async function deletarAlocacaoPeloId(id) { /* ... (esta função continua a mesma) ... */ }
-
-        // Configuração dos Eventos
-        addButton.addEventListener('click', () => {
-             // Ao clicar em adicionar, popula dropdowns com filtro
-            popularDropdowns(recursosCache, escoposCache, alocacoesCache);
-            abrirModal();
-        });
-        closeButton.addEventListener('click', fecharModal);
-        window.addEventListener('click', (e) => { if (e.target == modal) fecharModal(); });
-        
-        // Escutador da Tabela agora diferencia Edit e Delete
-        corpoTabela.addEventListener('click', (e) => {
-            const target = e.target.closest('button'); // Pega o botão clicado
-            if (!target) return; // Sai se não clicou em um botão
-
-            const id = target.getAttribute('data-id');
-            if (target.classList.contains('edit-btn')) {
-                abrirModalParaEditar(id);
-            } else if (target.classList.contains('delete-btn')) {
-                deletarAlocacaoPeloId(id);
-            }
-        });
-
-        // --- FUNÇÃO DE SALVAR ATUALIZADA ---
-        addForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const idParaEditar = editIdInput.value; // Pega o ID do campo oculto
-
-            // Monta o objeto de dados do formulário
-            const formData = {
-                Data: document.getElementById('Data').value, ID_Recurso: document.getElementById('ID_Recurso').value,
-                ID_Escopo: document.getElementById('ID_Escopo').value, Fase: document.getElementById('Fase').value,
-                TipoAlocacao: document.getElementById('TipoAlocacao').value, SubTipoAlocacao: document.getElementById('SubTipoAlocacao').value,
-                Orientacao: document.getElementById('Orientacao').value
-            };
-
-            let action = ''; // Ação padrão é salvar (criar)
-            let toastMessage = 'Salvando nova alocação...';
-
-            // Se temos um ID para editar, mudamos a ação e a mensagem
-            if (idParaEditar) {
-                action = 'update';
-                formData.ID_Alocacao = idParaEditar; // Inclui o ID nos dados a serem enviados
-                toastMessage = 'Atualizando alocação...';
-            }
-
-            try {
-                showToast(toastMessage, 'info');
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    // Inclui a ação no corpo da requisição, se houver
-                    body: JSON.stringify(action ? { ...formData, action: action } : formData)
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    showToast(idParaEditar ? 'Alocação atualizada!' : 'Alocação salva!', 'success');
-                    fecharModal();
-                    carregarDados(); // Recarrega tudo para mostrar a mudança
-                } else { 
-                    showToast('Erro: ' + result.message, 'error');
+            // Função principal para carregar dados
+            async function carregarDados() {
+                if (loader) loader.style.display = 'flex';
+                corpoTabela.innerHTML = ''; // Limpa a tabela antes de carregar
+                try {
+                    const [resAlocacoes, resRecursos, resEscopos] = await Promise.all([
+                        fetch(API_URL + '?action=getAlocacoes'),
+                        fetch(API_URL + '?action=getRecursos'),
+                        fetch(API_URL + '?action=getEscopos')
+                    ]);
+                    // Verifica se as respostas foram bem sucedidas antes de converter para JSON
+                    if (!resAlocacoes.ok || !resRecursos.ok || !resEscopos.ok) {
+                         throw new Error('Falha ao buscar dados da API.');
+                    }
+                    alocacoesCache = await resAlocacoes.json();
+                    recursosCache = await resRecursos.json();
+                    escoposCache = await resEscopos.json();
+                    renderizarTabela(alocacoesCache, recursosCache, escoposCache);
+                    // Popula dropdowns fixos apenas uma vez (os dinâmicos são populados ao abrir o modal)
+                    popularDropdownsFixos();
+                } catch (error) {
+                    corpoTabela.innerHTML = `<tr><td colspan="7">Erro ao carregar os dados: ${error.message}</td></tr>`;
+                    showToast(`Erro ao carregar dados: ${error.message}`, 'error');
+                } finally {
+                    if (loader) loader.style.display = 'none';
                 }
-            } catch (error) { 
-                showToast('Erro de conexão.', 'error');
             }
+
+            // Função para renderizar a tabela
+            function renderizarTabela(alocacoes, recursos, escopos) {
+                const recursosMap = new Map(recursos.map(r => [r.ID_Recurso, r.NomeRecurso]));
+                const escoposMap = new Map(escopos.map(e => [e.ID_Escopo, e.NomeEscopo]));
+                corpoTabela.innerHTML = ''; // Garante que a tabela esteja limpa
+                if (!Array.isArray(alocacoes) || alocacoes.length === 0) {
+                     corpoTabela.innerHTML = '<tr><td colspan="7">Nenhuma alocação encontrada.</td></tr>';
+                     return;
+                }
+                alocacoes.forEach(alocacao => {
+                    if (!alocacao || !alocacao.Data) return;
+                    const dataFormatada = new Date(alocacao.Data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                    corpoTabela.innerHTML += `
+                        <tr data-alocacao-id="${alocacao.ID_Alocacao}">
+                            <td>${dataFormatada}</td>
+                            <td>${recursosMap.get(alocacao.ID_Recurso) || ''}</td>
+                            <td>${escoposMap.get(alocacao.ID_Escopo) || ''}</td>
+                            <td>${alocacao.Fase || ''}</td>
+                            <td>${alocacao.TipoAlocacao || ''}</td>
+                            <td>${alocacao.Orientacao || ''}</td>
+                            <td>
+                                <button class="edit-btn" data-id="${alocacao.ID_Alocacao}">✏️</button>
+                                <button class="delete-btn" data-id="${alocacao.ID_Alocacao}">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Função para popular dropdowns fixos (executada uma vez)
+            function popularDropdownsFixos() {
+                const selectFase = document.getElementById('Fase');
+                const selectTipoAlocacao = document.getElementById('TipoAlocacao');
+                const selectSubTipo = document.getElementById('SubTipoAlocacao');
+                const selectOrientacao = document.getElementById('Orientacao');
+                const fases = ["Implantação", "Ongoing", "Piloto", "Produto"];
+                const tiposAlocacao = ["Cobertura", "Lista", "Revisão", "Desagrupamento", "Homologação Prosa"];
+                const subTipos = ["Excel", "Sistema"];
+                const orientacoes = ["Homologação Normal", "Desagrupamento", "Melhoria de AP", "Revisão"];
+                const preencherSelect = (el, opts, ph) => { el.innerHTML = `<option value="">${ph}</option>`; opts.forEach(o => el.innerHTML += `<option value="${o}">${o}</option>`); };
+                preencherSelect(selectFase, fases, "Selecione uma Fase");
+                preencherSelect(selectTipoAlocacao, tiposAlocacao, "Selecione um Tipo");
+                preencherSelect(selectSubTipo, subTipos, "Selecione um Sub-Tipo");
+                preencherSelect(selectOrientacao, orientacoes, "Selecione uma Orientação");
+            }
+            
+            // Função para popular dropdowns DINÂMICOS (executada ao abrir modal)
+            function popularDropdownsDinamicos(modoEdicao = false, idAlocacaoAtual = null) {
+                const selectRecurso = document.getElementById('ID_Recurso');
+                const selectEscopo = document.getElementById('ID_Escopo');
+
+                // Filtra recursos disponíveis APENAS se estivermos adicionando
+                let recursosParaDropdown = recursosCache;
+                if (!modoEdicao) {
+                    const recursosUsados = new Set(alocacoesCache.map(a => a.ID_Recurso));
+                    recursosParaDropdown = recursosCache.filter(r => !recursosUsados.has(r.ID_Recurso));
+                } else {
+                     // Se editando, mostra todos, mas permite manter o atual mesmo se já usado por outro
+                     const alocacaoAtual = alocacoesCache.find(a => a.ID_Alocacao == idAlocacaoAtual);
+                     const idRecursoAtual = alocacaoAtual ? alocacaoAtual.ID_Recurso : null;
+                     const recursosUsadosPorOutros = new Set(alocacoesCache.filter(a => a.ID_Alocacao != idAlocacaoAtual).map(a => a.ID_Recurso));
+                     recursosParaDropdown = recursosCache.filter(r => !recursosUsadosPorOutros.has(r.ID_Recurso) || r.ID_Recurso == idRecursoAtual);
+                }
+
+                selectRecurso.innerHTML = '<option value="">Selecione um Recurso</option>';
+                recursosParaDropdown.forEach(r => selectRecurso.innerHTML += `<option value="${r.ID_Recurso}">${r.NomeRecurso}</option>`);
+
+                selectEscopo.innerHTML = '<option value="">Selecione um Escopo</option>';
+                escoposCache.forEach(e => selectEscopo.innerHTML += `<option value="${e.ID_Escopo}">${e.NomeEscopo}</option>`);
+            }
+
+            // Função para abrir o modal para edição
+            function abrirModalParaEditar(id) {
+                const alocacaoParaEditar = alocacoesCache.find(a => a.ID_Alocacao == id);
+                if (!alocacaoParaEditar) { showToast('Erro: Alocação não encontrada.', 'error'); return; }
+                
+                popularDropdownsDinamicos(true, id); // Popula dropdowns dinâmicos em modo de edição
+
+                editIdInput.value = alocacaoParaEditar.ID_Alocacao;
+                const dataObjeto = new Date(alocacaoParaEditar.Data);
+                const ano = dataObjeto.getUTCFullYear();
+                const mes = String(dataObjeto.getUTCMonth() + 1).padStart(2, '0');
+                const dia = String(dataObjeto.getUTCDate()).padStart(2, '0');
+                document.getElementById('Data').value = `${ano}-${mes}-${dia}`;
+                document.getElementById('ID_Recurso').value = alocacaoParaEditar.ID_Recurso;
+                document.getElementById('ID_Escopo').value = alocacaoParaEditar.ID_Escopo;
+                document.getElementById('Fase').value = alocacaoParaEditar.Fase;
+                document.getElementById('TipoAlocacao').value = alocacaoParaEditar.TipoAlocacao;
+                document.getElementById('SubTipoAlocacao').value = alocacaoParaEditar.SubTipoAlocacao;
+                document.getElementById('Orientacao').value = alocacaoParaEditar.Orientacao;
+
+                modalTitle.textContent = 'Editar Alocação';
+                abrirModal();
+            }
+
+            // Função para deletar
+            async function deletarAlocacaoPeloId(id) {
+                if (!confirm('Tem certeza que deseja deletar esta alocação?')) { return; }
+                try {
+                    showToast('Deletando alocação...', 'info');
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'delete', ID_Alocacao: id })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast('Alocação deletada!', 'success');
+                        carregarDados();
+                    } else { showToast('Erro ao deletar: ' + result.message, 'error'); }
+                } catch (error) { showToast('Erro de conexão ao deletar.', 'error'); }
+            }
+
+            // Configuração dos Eventos
+            addButton.addEventListener('click', () => {
+                popularDropdownsDinamicos(false); // Popula dropdowns dinâmicos em modo de adição
+                abrirModal();
+            });
+            closeButton.addEventListener('click', fecharModal);
+            window.addEventListener('click', (e) => { if (e.target == modal) fecharModal(); });
+
+            corpoTabela.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                const id = target.getAttribute('data-id');
+                if (target.classList.contains('edit-btn')) {
+                    abrirModalParaEditar(id);
+                } else if (target.classList.contains('delete-btn')) {
+                    deletarAlocacaoPeloId(id);
+                }
+            });
+
+            addForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const idParaEditar = editIdInput.value;
+                const formData = {
+                    Data: document.getElementById('Data').value, ID_Recurso: document.getElementById('ID_Recurso').value,
+                    ID_Escopo: document.getElementById('ID_Escopo').value, Fase: document.getElementById('Fase').value,
+                    TipoAlocacao: document.getElementById('TipoAlocacao').value, SubTipoAlocacao: document.getElementById('SubTipoAlocacao').value,
+                    Orientacao: document.getElementById('Orientacao').value
+                };
+                let action = '';
+                let toastMessage = 'Salvando nova alocação...';
+                if (idParaEditar) {
+                    action = 'update';
+                    formData.ID_Alocacao = idParaEditar;
+                    toastMessage = 'Atualizando alocação...';
+                }
+                try {
+                    showToast(toastMessage, 'info');
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(action ? { ...formData, action: action } : formData)
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showToast(idParaEditar ? 'Alocação atualizada!' : 'Alocação salva!', 'success');
+                        fecharModal();
+                        carregarDados();
+                    } else { showToast('Erro: ' + result.message, 'error'); }
+                } catch (error) { showToast('Erro de conexão.', 'error'); }
+            });
+
+            // Inicia tudo
+            carregarDados();
         });
-        
-        // Inicia tudo
-        carregarDados();
-    });
-</script>
+    </script>
 
 </body>
 </html>
